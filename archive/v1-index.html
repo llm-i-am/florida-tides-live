@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#eef7ff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#07111c" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Explore NOAA coastal tides across Florida, with nearby real-time gauge adjustments clearly identified as estimates.">
+  <title>Florida Tidecast</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoAoEEp4rM4KcA=" crossorigin="">
+  <style>
+:root{color-scheme:light dark;--page:#eef7ff;--page2:#f8fbff;--ink:#0d1722;--muted:#5f7080;--line:rgba(13,23,34,.13);--surface:rgba(255,255,255,.77);--solid:#fff;--glass:rgba(255,255,255,.6);--accent:#007aff;--cyan:#22a8df;--soft:rgba(0,122,255,.1);--warn:#bb6d00;--good:#22854e;--shadow:0 18px 55px rgba(15,54,86,.10);--radius:27px}
+@media(prefers-color-scheme:dark){:root{--page:#07111c;--page2:#0a1725;--ink:#f4f8fb;--muted:#9baaba;--line:rgba(255,255,255,.13);--surface:rgba(14,29,45,.84);--solid:#122236;--glass:rgba(20,38,56,.69);--accent:#66b1ff;--cyan:#64d2ff;--soft:rgba(10,132,255,.15);--warn:#ffb340;--good:#30d158;--shadow:0 22px 65px rgba(0,0,0,.28)}}
+*{box-sizing:border-box}html{background:var(--page);-webkit-text-size-adjust:100%}body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;background:radial-gradient(900px 590px at 5% 0%,rgba(80,200,255,.22),transparent 64%),linear-gradient(180deg,var(--page2),var(--page));min-height:100svh}button,input{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.5;cursor:not-allowed}a{color:var(--accent);text-underline-offset:3px}.app{width:min(100%,980px);margin:0 auto;padding:calc(22px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) calc(32px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px))}.hero{padding:10px 5px 22px}.eyebrow{font-size:12px;letter-spacing:.08em;font-weight:800;color:var(--muted);display:flex;gap:9px;align-items:center}.station-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 5px var(--soft)}h1{font-size:clamp(35px,8vw,54px);letter-spacing:-.05em;line-height:1;margin:12px 0}.wave{color:var(--accent);font-weight:400}h2{font-size:20px;letter-spacing:-.025em;margin:0}.hero p{max-width:750px;color:var(--muted);line-height:1.5;margin:10px 0 0}.glass,.card{border-radius:var(--radius);border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);overflow:hidden}.glass{backdrop-filter:blur(20px) saturate(145%);-webkit-backdrop-filter:blur(20px) saturate(145%)}.controls{padding:18px;margin-bottom:16px}.card{margin-bottom:16px}.section-head{display:flex;justify-content:space-between;gap:12px;align-items:start;padding:18px 20px 12px}.controls>.section-head{padding:0 0 14px}.caption,.subtitle,.hint,.fine-print,.metric-detail{color:var(--muted);font-size:12px;line-height:1.5}.subtitle{margin:5px 0 0}.caption{white-space:normal;text-align:right}.search-bar{display:flex;gap:9px}.search-bar input,.coordinate-form input,.date-row input{height:47px;border-radius:13px;border:1px solid var(--line);background:var(--glass);color:var(--ink);font-size:16px;padding:0 12px;min-width:0;outline-offset:3px}.search-bar input{flex:1}.primary-button{min-height:47px;border:0;background:linear-gradient(180deg,#258dff,#007aff);color:white;border-radius:13px;padding:0 17px;font-weight:760}.secondary-button{min-height:42px;border:1px solid var(--line);background:var(--glass);color:var(--ink);border-radius:12px;padding:0 12px;font-size:13px;font-weight:700}.actions-row{display:flex;gap:8px;margin-top:9px}.place-chips{display:flex;gap:8px;overflow-x:auto;padding:13px 0 8px;scrollbar-width:thin}.place-chips button{white-space:nowrap;border:1px solid var(--line);border-radius:999px;background:var(--soft);color:var(--ink);padding:7px 10px;font-size:12px;font-weight:700}.hint{margin:7px 1px 9px}#map{height:280px;border-radius:15px;overflow:hidden;background:#dae6eb;border:1px solid var(--line);z-index:0}.coord-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:13px 1px 6px;font-weight:750;font-size:13px}.mono{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px}.coordinate-form{display:flex;gap:9px;align-items:end;flex-wrap:wrap;padding:6px 0 0}.coordinate-form label,.date-row label{font-size:11px;color:var(--muted);font-weight:740;display:grid;gap:4px}.coordinate-form input{width:138px;height:39px;font-size:13px}.coordinate-form button{height:39px}.date-row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.date-row input{height:43px;max-width:160px}.date-row button{height:43px;min-height:43px}.quick-range{display:flex;gap:6px;background:rgba(127,127,127,.09);border-radius:14px;padding:4px;margin-bottom:12px}.quick-range button{flex:1;border:0;background:transparent;color:var(--muted);font-weight:760;padding:10px 7px;border-radius:11px;font-size:13px}.quick-range button[aria-pressed="true"]{color:var(--ink);background:var(--solid);box-shadow:0 1px 7px rgba(0,0,0,.08)}.status{font-size:12px;line-height:1.5;margin-top:13px;color:var(--muted);min-height:19px}.error{border:1px solid rgba(200,40,40,.4);background:rgba(220,50,50,.09);padding:12px;border-radius:13px;margin-top:10px;font-size:13px;line-height:1.5}.badge{border-radius:999px;background:var(--soft);color:var(--accent);font-size:11px;font-weight:800;padding:7px 10px;white-space:nowrap}.badge.warn{color:var(--warn);background:rgba(220,140,10,.1)}.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:6px 20px 19px}.metric-grid>div{min-width:0}.metric-label{color:var(--muted);font-size:12px;display:block}.big-number{display:block;font-size:clamp(28px,7vw,43px);letter-spacing:-.05em;margin:5px 0;white-space:nowrap;font-variant-numeric:tabular-nums}.big-number.subtle{font-size:clamp(24px,6vw,34px);color:var(--muted)}.metric-detail{display:block}.fine-print{margin:0;padding:0 20px 19px}.chart-wrap{width:100%;padding:0 9px 8px;min-height:265px}.chart-wrap svg{width:100%;height:auto;display:block;touch-action:pan-y}.empty{padding:35px 14px;text-align:center;color:var(--muted);font-size:13px}.chart-axis{font:11px system-ui,sans-serif;fill:var(--muted)}.chart-grid{stroke:var(--line);stroke-width:1}.chart-baseline{fill:none;stroke:var(--muted);stroke-width:2;stroke-dasharray:6 5;opacity:.9}.chart-adjusted{fill:none;stroke:var(--accent);stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round}.chart-area{fill:var(--soft)}.chart-now{stroke:var(--cyan);stroke-width:1.4;stroke-dasharray:4 4}.chart-dot{fill:var(--accent);stroke:var(--solid);stroke-width:2}.legend{display:flex;gap:12px;flex-wrap:wrap;padding:0 20px 16px;font-size:12px}.legend span{display:flex;gap:6px;align-items:center}.swatch{display:inline-block;width:17px;height:3px}.swatch.predicted{background:var(--muted)}.swatch.adjusted{background:var(--accent)}.summary-strip{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}.summary-strip>div{padding:13px 15px;display:grid;gap:4px;border-right:1px solid var(--line)}.summary-strip>div:last-child{border-right:0}.summary-strip span{text-transform:uppercase;letter-spacing:.035em;font-weight:730;font-size:10px;color:var(--muted)}.summary-strip strong{font-size:18px;letter-spacing:-.02em}.summary-strip small{font-size:11px;color:var(--muted)}.filter{margin:4px 20px 12px}.table-shell{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:570px;font-variant-numeric:tabular-nums}th{text-transform:uppercase;font-size:11px;letter-spacing:.06em;color:var(--muted);background:var(--soft);padding:11px;text-align:left}td{font-size:13px;padding:12px 11px;border-bottom:1px solid var(--line)}td small{color:var(--muted)}.tide-high{color:var(--accent)}.tide-low{color:var(--cyan)}.source-intro{font-size:13px;line-height:1.5;padding:0 20px 12px}.gauge-list{padding:0 20px 11px}.gauge{display:grid;grid-template-columns:1fr auto;gap:6px 15px;padding:12px 0;border-top:1px solid var(--line)}.gauge strong{font-size:13px}.gauge span{font-size:12px;color:var(--muted)}.gauge .delta{text-align:right;font-weight:800;font-size:14px;color:var(--ink)}.links{padding:0 20px 18px;display:flex;gap:14px;flex-wrap:wrap;font-size:12px;font-weight:750}footer{font-size:12px;color:var(--muted);line-height:1.7;padding:12px 5px 30px}.sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;clip:rect(0,0,0,0);overflow:hidden;white-space:nowrap}
+@media(max-width:560px){.app{padding-left:12px;padding-right:12px}.controls{padding:15px}.section-head{padding:16px 16px 12px}.metric-grid{padding-left:16px;padding-right:16px}.chart-head{align-items:start}.date-row label{flex:1;min-width:120px}.date-row input{width:100%;max-width:none}.date-row button{flex:1}.coordinate-form label{flex:1;min-width:120px}.coordinate-form input{width:100%}#map{height:235px}.summary-strip>div{padding:12px 8px}.summary-strip strong{font-size:15px}.legend{padding-left:16px;padding-right:16px}.fine-print{padding-left:16px;padding-right:16px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+
+</style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div class="eyebrow"><span class="station-dot"></span> FLORIDA COAST · NOAA DATA</div>
+      <h1>Florida Tidecast<span class="wave">~</span></h1>
+      <p>Choose a Florida shoreline. Compare official tide predictions with an experimental estimate adjusted by nearby live water-level gauges.</p>
+    </header>
+
+    <section class="glass controls" aria-labelledby="locationHeading">
+      <div class="section-head"><h2 id="locationHeading">Your shoreline</h2><span class="caption">Florida only</span></div>
+      <form id="searchForm" class="search-bar">
+        <label class="sr-only" for="placeSearch">Beach, place or Florida address</label>
+        <input id="placeSearch" type="search" placeholder="Search beach, park or address…" autocomplete="street-address" maxlength="170">
+        <button class="primary-button" type="submit">Find</button>
+      </form>
+      <div class="actions-row">
+        <button type="button" class="secondary-button" id="locateButton">◎ Use my location</button>
+        <button type="button" class="secondary-button" id="toggleMap" aria-expanded="true" aria-controls="mapPanel">◈ Map / drop pin</button>
+      </div>
+      <div id="places" class="place-chips" aria-label="Example Florida shorelines">
+        <button data-location="cypress">Cypress Point Park</button>
+        <button data-location="honeymoon">Honeymoon Island</button>
+        <button data-location="siesta">Siesta Key</button>
+        <button data-location="miami">Miami Beach</button>
+        <button data-location="jax">Jacksonville Beach</button>
+      </div>
+      <div id="mapPanel"><p class="hint">Tap the map to select the exact shoreline. An address may point inland; move the pin to the water's edge for better station selection.</p><div id="map" role="application" aria-label="Map of Florida; click to choose coastal location"></div></div>
+      <div class="coord-row"><span id="selectedPlace">Selecting location…</span><span id="coordinates" class="mono"></span></div>
+      <form id="coordinateForm" class="coordinate-form">
+        <label>Latitude <input id="latitude" type="number" step="any" min="24" max="31.1" required></label>
+        <label>Longitude <input id="longitude" type="number" step="any" min="-88.1" max="-79.7" required></label>
+        <button type="submit" class="secondary-button">Set pin</button>
+      </form>
+    </section>
+
+    <section class="glass controls date-controls" aria-labelledby="dateHeading">
+      <div class="section-head"><h2 id="dateHeading">Tide window</h2><span id="stationCount" class="caption">Loading NOAA stations…</span></div>
+      <div class="quick-range" aria-label="Date shortcuts">
+        <button type="button" data-days="1">Today</button>
+        <button type="button" data-days="3" aria-pressed="true">3 Days</button>
+        <button type="button" data-days="7">7 Days</button>
+      </div>
+      <div class="date-row">
+        <label>Start <input type="date" id="startDate"></label>
+        <label>End <input type="date" id="endDate"></label>
+        <button id="showButton" type="button" class="primary-button">Show tides</button>
+        <button id="refreshButton" type="button" class="secondary-button" title="Refresh observations and predictions">↻ Refresh</button>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite">Loading station catalog…</div>
+      <div id="error" class="error" hidden role="alert"></div>
+    </section>
+
+    <section class="current-card card" aria-labelledby="estimateTitle">
+      <div class="section-head"><h2 id="estimateTitle">Water level around now</h2><span id="estimateBadge" class="badge">Loading</span></div>
+      <div class="metric-grid">
+        <div><span class="metric-label">Live-adjusted estimate</span><strong class="big-number" id="estimatedNow">—</strong><span class="metric-detail" id="currentMethod">No estimate yet</span></div>
+        <div><span class="metric-label">NOAA astronomical baseline</span><strong class="big-number subtle" id="predictedNow">—</strong><span class="metric-detail" id="residualNow">—</span></div>
+      </div>
+      <p class="fine-print" id="datumNotice">Heights are relative to the selected NOAA reference station's MLLW datum, NOT surveyed elevation or exact beach depth.</p>
+    </section>
+
+    <section class="card graph-card" aria-labelledby="chartTitle">
+      <div class="section-head chart-head"><div><h2 id="chartTitle">Tide curve</h2><p class="subtitle">NOAA baseline and experimental live-adjusted guidance</p></div><span id="chartRange" class="caption"></span></div>
+      <div id="chartWrap" class="chart-wrap"><div class="empty">Choose a shoreline to view tides.</div></div>
+      <div class="legend"><span><i class="swatch predicted"></i>NOAA baseline</span><span><i class="swatch adjusted"></i>Estimated</span><span class="caption">Curve between official highs/lows is illustrative for subordinate stations.</span></div>
+      <div class="summary-strip"><div><span>Highest NOAA</span><strong id="highest">—</strong><small id="highestTime"></small></div><div><span>Lowest NOAA</span><strong id="lowest">—</strong><small id="lowestTime"></small></div><div><span>Predicted turns</span><strong id="turns">—</strong><small>Selected range</small></div></div>
+    </section>
+
+    <section class="card" aria-labelledby="tideTableTitle">
+      <div class="section-head"><div><h2 id="tideTableTitle">High &amp; low tides</h2><p class="subtitle">NOAA times &amp; heights, with an indicative adjusted height where live data is applicable</p></div></div>
+      <div class="quick-range filter" aria-label="Tide table filter"><button data-filter="both" aria-pressed="true">Both</button><button data-filter="high">High</button><button data-filter="low">Low</button></div>
+      <div class="table-shell"><table><thead><tr><th>Date</th><th>Time</th><th>Tide</th><th>NOAA</th><th>Estimated</th></tr></thead><tbody id="tideRows"><tr><td colspan="5">Loading…</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card" aria-labelledby="sourcesTitle"><div class="section-head"><div><h2 id="sourcesTitle">How the estimate was made</h2><p class="subtitle">Real measurements weighted by freshness, distance and coastal basin</p></div></div>
+      <div class="source-intro" id="baseStation">Selecting official NOAA baseline…</div>
+      <div id="gaugeList" class="gauge-list"><p class="empty">Waiting for live gauges…</p></div>
+      <p class="fine-print">Observed minus predicted water level is combined in feet, not percentages. Nearby gauges across islands, peninsulas, or separate basins may be excluded. Live data are preliminary; a gauge may be unavailable. Confidence is qualitative, not a validated error interval.</p>
+      <div class="links" id="sourceLinks"></div>
+    </section>
+
+    <footer>NOAA/NOS/CO-OPS station data and observations. Map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>. Search uses OSM Nominatim under its <a href="https://operations.osmfoundation.org/policies/nominatim/" target="_blank" rel="noopener noreferrer">usage policy</a>. Model output is an experimental, unvalidated estimate and is <strong>not for navigation, flood-safety decisions, or determining safe beach access</strong>. Weather, wind and local bathymetry can cause significant differences.</footer>
+  </main>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+/* Florida Tidecast calculation primitives. Pure functions; also loaded by Node tests.
+   The algorithm is a transparent, unvalidated heuristic, NOT an official NOAA forecast. */
+(function (root, factory) {
+  const value = factory();
+  if (typeof module === 'object' && module.exports) module.exports = value;
+  else root.TideMath = value;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+  const DEG = Math.PI / 180;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  function kmBetween(a, b) {
+    const p1 = a.lat * DEG, p2 = b.lat * DEG;
+    const dLat = (b.lat - a.lat) * DEG, dLon = (b.lng - a.lng) * DEG;
+    const h = Math.sin(dLat/2)**2 + Math.cos(p1)*Math.cos(p2)*Math.sin(dLon/2)**2;
+    return 12742 * Math.asin(Math.min(1,Math.sqrt(h)));
+  }
+  function basin(p) {
+    // Coarse geographic grouping ONLY; not a waterway connectivity or bathymetry model.
+    if (p.lat < 25.7 && p.lng > -82.5) return 'keys';
+    if (p.lat >= 27.35 && p.lat <= 28.13 && p.lng >= -82.78 && p.lng <= -82.34) return 'tampa-bay';
+    if (p.lat > 29 && p.lng < -83.0) return 'panhandle-gulf';
+    if (p.lat >= 25.7 && p.lat < 27.35) return p.lng < -81.45 ? 'south-gulf' : 'south-atlantic';
+    if (p.lat >= 27.35 && p.lat < 29) return p.lng < -82.1 ? 'west-gulf' : 'east-atlantic';
+    if (p.lat >= 29 && p.lng >= -83.0) return p.lng < -81.95 ? 'north-gulf' : 'north-atlantic';
+    return 'unknown';
+  }
+  function compatibility(a, b) {
+    const x = basin(a), y = basin(b);
+    if (x === y) return 1;
+    const gulf = ['south-gulf','west-gulf','north-gulf','panhandle-gulf'];
+    const atl = ['south-atlantic','east-atlantic','north-atlantic'];
+    if (gulf.includes(x) && gulf.includes(y)) return .48;
+    if (atl.includes(x) && atl.includes(y)) return .48;
+    if ((x === 'tampa-bay' && gulf.includes(y)) || (y === 'tampa-bay' && gulf.includes(x))) return .08;
+    if ((x === 'keys' && (x===y || gulf.includes(y) || atl.includes(y))) ||
+        (y === 'keys' && (gulf.includes(x) || atl.includes(x)))) return .16;
+    return .01;
+  }
+  function candidates(target, stations, maxCount = 5) {
+    return stations.map(s=>({ ...s, distanceKm: kmBetween(target, s), regionWeight: compatibility(target, s) }))
+      .filter(s=>Number.isFinite(s.distanceKm) && s.regionWeight >= .2)
+      .sort((a,b)=>(a.distanceKm / a.regionWeight)-(b.distanceKm / b.regionWeight))
+      .slice(0,maxCount);
+  }
+  function rankStation(target, stations) {
+    return candidates(target, stations, 1)[0] || null;
+  }
+  function parseNOAAStamp(s) {
+    if (typeof s !== 'string') return NaN;
+    const match = s.match(/^(\d{4})-(\d\d)-(\d\d)[ T](\d\d):(\d\d)(?::(\d\d))?$/);
+    if (!match) return NaN;
+    return Date.UTC(+match[1],+match[2]-1,+match[3],+match[4],+match[5],+(match[6]||0));
+  }
+  function normalizePredictions(data) {
+    if (!Array.isArray(data?.predictions)) throw new Error(data?.error?.message || 'NOAA did not return tide predictions.');
+    const pts = data.predictions.map(p=>({t:parseNOAAStamp(p.t),v:Number(p.v),type:String(p.type||p.ty||'').toUpperCase()}))
+      .filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.v)&&p.v>-30&&p.v<40)
+      .sort((a,b)=>a.t-b.t);
+    return pts.filter((p,i)=>i===0||p.t!==pts[i-1].t);
+  }
+  function normalizeObservations(data) {
+    if (!Array.isArray(data?.data)) throw new Error(data?.error?.message || 'No water-level observations available.');
+    const pts = data.data.map(p=>({t:parseNOAAStamp(p.t),v:Number(p.v),quality:p.q||'',flags:p.f||''}))
+      .filter(p=>Number.isFinite(p.t)&&Number.isFinite(p.v)&&p.v>-30&&p.v<40);
+    return pts.sort((a,b)=>a.t-b.t);
+  }
+  function valueAt(points, stamp, {smooth=false, maxGapMs=9*3600000}={}) {
+    if (!points.length || stamp < points[0].t || stamp > points[points.length-1].t) return null;
+    let lo=0,hi=points.length-1;
+    while(lo<=hi){const mid=(lo+hi)>>1;if(points[mid].t===stamp)return points[mid].v;if(points[mid].t<stamp)lo=mid+1;else hi=mid-1;}
+    const a=points[hi],b=points[lo];if(!a||!b||b.t<=a.t||b.t-a.t>maxGapMs)return null;
+    const u=(stamp-a.t)/(b.t-a.t);
+    return a.v+(b.v-a.v)*(smooth?(1-Math.cos(Math.PI*u))/2:u);
+  }
+  function gaugeResidual({station, observation, astronomical, now}) {
+    const ageMinutes=(now-observation.t)/60000;
+    if(ageMinutes < -12 || ageMinutes>75 || !Number.isFinite(astronomical))return null;
+    const raw=observation.v-astronomical;
+    if(Math.abs(raw)>8)return null; // suspect datum or sensor. Not a physical guarantee.
+    const freshness=clamp(1-ageMinutes/150,.2,1);
+    const distanceFactor=Math.exp(-station.distanceKm/70);
+    const weight=station.regionWeight*distanceFactor*freshness;
+    return {...station, observed:observation.v, astronomical, ageMinutes, residual:raw, weight, observationTime:observation.t};
+  }
+  function combineResiduals(gauges) {
+    const useful=gauges.filter(g=>g&&g.weight>0&&Number.isFinite(g.residual));
+    if(!useful.length)return null;
+    const total=useful.reduce((n,g)=>n+g.weight,0);
+    const raw=useful.reduce((n,g)=>n+g.residual*g.weight,0)/total;
+    const nearest=Math.min(...useful.map(g=>g.distanceKm));
+    const mostCompatible=Math.max(...useful.map(g=>g.regionWeight));
+    // Strong correction near geographically relevant gauges, conservative away from them.
+    const strength=clamp((.97-.0038*Math.max(0,nearest-5))*mostCompatible,.12,.97);
+    return {raw,correction:raw*strength,strength,nearest,gauges:useful.map(g=>({...g,share:g.weight/total}))};
+  }
+  function projectedCorrection(combined, when, now) {
+    if(!combined)return 0;
+    const hours=(when-now)/3600000;
+    // A present-day residual is not a 7-day weather forecast. Fade it as it ages.
+    if(hours >= 0)return combined.correction*Math.exp(-hours/9);
+    return combined.correction*Math.exp(Math.min(0,hours+0.25)/3);
+  }
+  function easternMidnightUTC(iso) {
+    // UTC midnight precedes the local day's DST switch, if any.
+    const d=new Date(iso+'T00:00:00Z');
+    const s=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',timeZoneName:'shortOffset'}).formatToParts(d).find(p=>p.type==='timeZoneName')?.value || 'GMT-4';
+    const m=s.match(/GMT([+-])(\d+)(?::(\d+))?/);
+    const offset=m?(m[1]==='-'?-1:1)*(Number(m[2])*60+Number(m[3]||0)):0;
+    return Date.parse(iso+'T00:00:00Z')-offset*60000;
+  }
+  function plusDaysISO(iso,days) {const d=new Date(iso+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+days);return d.toISOString().slice(0,10);}
+  function dateFL(stamp){return new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(stamp));}
+  return {clamp,kmBetween,basin,compatibility,candidates,rankStation,parseNOAAStamp,normalizePredictions,normalizeObservations,valueAt,gaugeResidual,combineResiduals,projectedCorrection,easternMidnightUTC,plusDaysISO,dateFL};
+});
+
+</script>
+  <script>
+/* Florida Tidecast. Adapted from the user's Honeymoon Island Tides v12 concept:
+   local-day controls, NOAA hilo predictions, smooth tide SVG, cached NOAA requests. */
+(() => {
+  'use strict';
+  const M = window.TideMath;
+  if (!M) throw new Error('TideMath module unavailable');
+  const $ = id => document.getElementById(id);
+  const STATIONS = 'https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations.json';
+  const NOAA = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter';
+  const NOAA_ALT = 'https://tidesandcurrents.noaa.gov/api/datagetter';
+  const SEARCH = 'https://nominatim.openstreetmap.org/search';
+  const TILE = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  const FL_TIME = {timeZone:'America/New_York'};
+  const PRESETS = {
+    cypress:{lat:27.9477,lng:-82.5502,label:'Cypress Point Park · Tampa Bay'},
+    honeymoon:{lat:28.0618,lng:-82.8135,label:'Honeymoon Island'},
+    siesta:{lat:27.268,lng:-82.551,label:'Siesta Key Beach'},
+    miami:{lat:25.7907,lng:-80.1295,label:'Miami Beach'},
+    jax:{lat:30.2903,lng:-81.3893,label:'Jacksonville Beach'}
+  };
+  // Verified NOAA MDAPI station coordinates; only a resilience fallback if catalog API fails.
+  const SEED_PRED = [
+    {id:'8726607',name:'Old Port Tampa',lat:27.8578,lng:-82.5528,state:'FL',type:'R'},
+    {id:'8726674',name:'East Bay',lat:27.9231,lng:-82.4214,state:'FL',type:'R'},
+    {id:'8726724',name:'Clearwater Beach',lat:27.9783,lng:-82.8317,state:'FL',type:'R'},
+    {id:'8726809',name:'Honeymoon Island',lat:28.0617,lng:-82.8133,state:'FL',type:'S'}
+  ];
+  const SEED_GAUGES = SEED_PRED.filter(s=>s.id!=='8726809');
+  const state = {
+    target:{...PRESETS.cypress}, predStations:[], gauges:[], catalogFallback:false,
+    start:'',end:'',base:null,basePoints:[],visible:[],gaugeResults:[],combined:null,
+    now:Date.now(),seq:0,tableFilter:'both',map:null,marker:null,loading:false,
+    recentSearchAt:0, searchCache:{},catalogReady:false, selectedDays:3, modelGuidance:null
+  };
+  const fmtFt = v => Number.isFinite(v) ? `${v.toFixed(2)} ft` : '—';
+  const fmtTime = t => new Intl.DateTimeFormat('en-US',{...FL_TIME,hour:'numeric',minute:'2-digit'}).format(new Date(t));
+  const fmtDay = t => new Intl.DateTimeFormat('en-US',{...FL_TIME,weekday:'short',month:'short',day:'numeric'}).format(new Date(t));
+  const fmtShort = t => new Intl.DateTimeFormat('en-US',{...FL_TIME,month:'short',day:'numeric'}).format(new Date(t));
+  const validPoint = p => Number.isFinite(p.lat)&&Number.isFinite(p.lng)&&p.lat>=24&&p.lat<=31.1&&p.lng>=-88.1&&p.lng<=-79.7;
+  function text(el,v){el.textContent=v;}
+  function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function status(s){text($('status'),s);}
+  function error(s){$('error').hidden=!s;text($('error'),s||'');}
+  function todayFL(){const p=new Intl.DateTimeFormat('en-US',{...FL_TIME,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const d=Object.fromEntries(p.map(x=>[x.type,x.value]));return `${d.year}-${d.month}-${d.day}`;}
+  function setDates(n){state.selectedDays=n;state.start=todayFL();state.end=M.plusDaysISO(state.start,n-1);$('startDate').value=state.start;$('endDate').value=state.end;document.querySelectorAll('[data-days]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.days===n)));}
+  function readDates(){const a=$('startDate').value,b=$('endDate').value;if(!/^\d{4}-\d{2}-\d{2}$/.test(a)||!/^\d{4}-\d{2}-\d{2}$/.test(b))throw Error('Select valid dates.');const span=Math.round((Date.parse(b+'T00:00Z')-Date.parse(a+'T00:00Z'))/86400000)+1;if(span<1||span>31)throw Error('Choose 1 to 31 consecutive days.');state.start=a;state.end=b;document.querySelectorAll('[data-days]').forEach(x=>x.setAttribute('aria-pressed','false'));}
+  function lsGet(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}}
+  function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+  async function getJSON(url,timeout=12000){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),timeout);try{const r=await fetch(url,{credentials:'omit',headers:{Accept:'application/json'},signal:controller.signal});if(!r.ok)throw Error(`HTTP ${r.status}`);const j=await r.json();if(j?.error)throw Error(j.error.message||'NOAA API returned an error');return j;}finally{clearTimeout(timer)}}
+  async function noaa(params,{ttl=4*60000,force=false}={}){
+    const u=new URL(NOAA);const all={...params,format:'json',application:'FloridaTidecast'};Object.entries(all).forEach(([k,v])=>u.searchParams.set(k,String(v)));
+    const key='ftc:noaa:v1:'+u.search;
+    const cached=lsGet(key);if(!force&&cached&&Date.now()-cached.when<ttl)return cached.data;
+    const urls=[u.toString(),NOAA_ALT+u.search,
+      'https://api.allorigins.win/raw?url='+encodeURIComponent(u.toString())];
+    let issue=null;for(const url of urls){try{const data=await getJSON(url,10000);lsSet(key,{when:Date.now(),data});return data}catch(e){issue=e}}
+    if(cached?.data)return cached.data;
+    throw issue || Error('NOAA data unavailable');
+  }
+  async function stationCatalog(type){
+    const key='ftc:catalog:'+type;const cached=lsGet(key);
+    if(cached?.list?.length&&Date.now()-cached.when<24*3600000)return cached.list;
+    try{
+      const url=STATIONS+'?type='+encodeURIComponent(type);
+      const data=await getJSON(url,22000);
+      const raw=data.stations||data.stationList;
+      if(!Array.isArray(raw)||!raw.length)throw Error('Empty NOAA station catalog');
+      const list=raw.filter(s=>s.state==='FL'&&Number.isFinite(+s.lat)&&Number.isFinite(+s.lng))
+        .map(s=>({id:String(s.id),name:String(s.name),lat:Number(s.lat),lng:Number(s.lng),type:s.type||'',state:s.state}));
+      if(!list.length)throw Error('No Florida stations found');
+      lsSet(key,{when:Date.now(),list});return list;
+    }catch(e){if(cached?.list?.length)return cached.list;throw e}
+  }
+  async function prepareCatalog(){
+    const r=await Promise.allSettled([stationCatalog('tidepredictions'),stationCatalog('waterlevels')]);
+    state.predStations=r[0].status==='fulfilled'?r[0].value:SEED_PRED;
+    state.gauges=r[1].status==='fulfilled'?r[1].value:SEED_GAUGES;
+    state.catalogFallback=r.some(x=>x.status==='rejected');
+    state.catalogReady=true;
+    text($('stationCount'),`${state.predStations.length} prediction sites · ${state.gauges.length} live sites${state.catalogFallback?' (limited catalog)':''}`);
+    if(state.catalogFallback)error('Some NOAA station metadata could not be loaded. Using previously saved or limited fallback stations. Florida-wide station coverage may be incomplete.');
+  }
+  function setTarget(p,zoom=true){
+    if(!validPoint(p)){error('Select coordinates along the Florida coast (latitude 24–31.1, longitude −88.1 to −79.7).');return;}
+    state.target={lat:p.lat,lng:p.lng,label:p.label||'Selected Florida point'};
+    text($('selectedPlace'),state.target.label);text($('coordinates'),`${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`);
+    $('latitude').value=p.lat.toFixed(5);$('longitude').value=p.lng.toFixed(5);
+    if(state.map){if(!state.marker)state.marker=L.marker([p.lat,p.lng]).addTo(state.map);else state.marker.setLatLng([p.lat,p.lng]);if(zoom)state.map.setView([p.lat,p.lng],12)}
+    lsSet('ftc:selection',state.target);
+    const share=new URL(window.location.href);share.searchParams.set('lat',p.lat.toFixed(5));share.searchParams.set('lng',p.lng.toFixed(5));
+    try{window.history.replaceState({},'',share.toString())}catch{}
+    if(state.catalogReady)load();
+  }
+  function initMap(){
+    if(!window.L){$('map').textContent='Map did not load. You can still enter coordinates or select a sample beach.';return;}
+    const p=state.target;state.map=L.map('map',{scrollWheelZoom:false,zoomControl:true}).setView([p.lat,p.lng],11);
+    L.tileLayer(TILE,{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',maxZoom:19}).addTo(state.map);
+    state.marker=L.marker([p.lat,p.lng]).addTo(state.map);
+    state.map.on('click',e=>setTarget({lat:e.latlng.lat,lng:e.latlng.lng,label:'Dropped map pin'},false));
+  }
+  async function placeSearch(e){
+    e.preventDefault();const query=$('placeSearch').value.trim();if(!query)return;
+    if(/^-?\d+(?:\.\d+)?\s*[, ]\s*-?\d+(?:\.\d+)?$/.test(query)){const [lat,lng]=query.split(/[, ]+/).map(Number);setTarget({lat,lng,label:'Entered coordinates'});return}
+    const normalized=query.toLowerCase();const cache=state.searchCache[normalized];
+    try{
+      status('Searching for Florida location…');let results=cache;
+      if(!results){
+        const wait=Math.max(0,1100-(Date.now()-state.recentSearchAt));if(wait)await new Promise(resolve=>setTimeout(resolve,wait));
+        state.recentSearchAt=Date.now();
+        const u=new URL(SEARCH);u.searchParams.set('q',query);u.searchParams.set('format','json');u.searchParams.set('limit','5');u.searchParams.set('countrycodes','us');u.searchParams.set('viewbox','-88.0,31.1,-79.7,24.0');u.searchParams.set('bounded','1');
+        results=await getJSON(u.toString(),12000);
+        state.searchCache[normalized]=results;
+      }
+      const found=results.find(x=>validPoint({lat:Number(x.lat),lng:Number(x.lon)}));
+      if(!found)throw Error('No matching Florida location. Try a more specific name, or drop a pin.');
+      setTarget({lat:Number(found.lat),lng:Number(found.lon),label:found.display_name?.split(',').slice(0,3).join(',')||query});
+    }catch(e){error(`Search failed: ${e.message}. You can always drop a map pin.`);status('Search unavailable. Choose a map point or coordinates.');}
+  }
+  function bestGauges(target){
+    // Select only reasonably compatible water basins. No arbitrary fixed "two buoys" limit.
+    const ranked=M.candidates(target,state.gauges,8);
+    return ranked.filter(s=>s.distanceKm<=180).slice(0,5);
+  }
+  function mainParams(station,from,to,interval='hilo'){
+    return {product:'predictions',station:station.id,begin_date:from.replaceAll('-',''),end_date:to.replaceAll('-',''),datum:'MLLW',time_zone:'gmt',units:'english',interval};
+  }
+  async function gaugeLive(station,force){
+    try{
+      const obs=M.normalizeObservations(await noaa({product:'water_level',station:station.id,date:'recent',datum:'MLLW',time_zone:'gmt',units:'english'},{ttl:6*60000,force}));
+      // Use last eligible observation, not necessarily the last raw row if it is invalid.
+      const last=obs.filter(o=>o.t<=Date.now()+12*60000).at(-1);
+      if(!last)return null;
+      const d=new Date(last.t).toISOString().slice(0,10);
+      let tide;
+      try{tide=M.normalizePredictions(await noaa(mainParams(station,M.plusDaysISO(d,-1),M.plusDaysISO(d,1),'6'),{ttl:8*3600000,force:false}));}
+      catch{tide=M.normalizePredictions(await noaa(mainParams(station,M.plusDaysISO(d,-1),M.plusDaysISO(d,1),'hilo'),{ttl:8*3600000,force:false}));}
+      const astronomical=M.valueAt(tide,last.t,{smooth:tide.length<30,maxGapMs:12*3600000});
+      if(astronomical===null)return null;
+      return M.gaugeResidual({station,observation:last,astronomical,now:Date.now()});
+    }catch{return null}
+  }
+  async function load(force=false){
+    const seq=++state.seq;state.loading=true;state.now=Date.now();$('showButton').disabled=true;
+    try{
+      error(state.catalogFallback?'NOAA station catalog is limited to a small fallback or cached set. Some Florida shorelines will be unsupported.':'');
+      const st=state.target;
+      if(!validPoint(st))throw Error('Florida coordinates are out of bounds.');
+      const base=M.rankStation(st,state.predStations);
+      if(!base||base.distanceKm>75)throw Error('No sufficiently nearby, geographically compatible NOAA prediction station was found. Try a shoreline pin closer to a known tide station.');
+      state.base=base;state.combined=null;state.gaugeResults=[];
+      status(`Loading NOAA tide predictions near ${st.label}…`);
+      const from=M.plusDaysISO(state.start,-1),to=M.plusDaysISO(state.end,1);
+      const raw=await noaa(mainParams(base,from,to),{ttl:5*60000,force});
+      const points=M.normalizePredictions(raw);
+      if(seq!==state.seq)return;
+      if(points.length<2)throw Error('NOAA returned too few tide extrema to draw a curve.');
+      const b=M.easternMidnightUTC(state.start),e=M.easternMidnightUTC(M.plusDaysISO(state.end,1));
+      state.basePoints=points;
+      state.visible=points.filter(p=>p.t>=b&&p.t<e);
+      if(!state.visible.length)throw Error('No NOAA tide predictions were returned for the selected local dates.');
+      status('NOAA baseline loaded. Checking nearby live gauges…');
+      render();
+      const gauges=bestGauges(st);
+      const observed=await Promise.all(gauges.map(g=>gaugeLive(g,force)));
+      if(seq!==state.seq)return;
+      state.gaugeResults=observed.filter(Boolean);
+      state.combined=M.combineResiduals(state.gaugeResults);
+      render();
+      const suffix=state.gaugeResults.length?`${state.gaugeResults.length} fresh gauge${state.gaugeResults.length===1?'':'s'} incorporated`:'No fresh compatible gauges; official predictions only';
+      status(`${base.name} (${base.id}) · ${Math.round(base.distanceKm*10)/10} km to NOAA prediction site · ${suffix}`);
+    }catch(e){if(seq!==state.seq)return;error(e.message);status('Unable to complete tide lookup.');showUnavailable()}
+    finally{if(seq===state.seq){state.loading=false;$('showButton').disabled=false}}
+  }
+  function showUnavailable(){state.basePoints=[];state.visible=[];state.combined=null;text($('estimatedNow'),'—');text($('predictedNow'),'—');text($('currentMethod'),'No estimate available');text($('residualNow'),'—');$('chartWrap').innerHTML='<div class="empty">Tide information unavailable for this location or date range.</div>';$('tideRows').innerHTML='<tr><td colspan="5">No tide predictions available.</td></tr>';text($('estimateBadge'),'Unavailable')}
+  function baseValue(t){return M.valueAt(state.basePoints,t,{smooth:true,maxGapMs:14*3600000});}
+  function adjusted(t){const v=baseValue(t);return v===null?null:v+M.projectedCorrection(state.combined,t,state.now);}
+  function render(){
+    if(!state.base)return;
+    const pred=baseValue(state.now),est=adjusted(state.now);
+    text($('predictedNow'),fmtFt(pred));text($('estimatedNow'),fmtFt(est));
+    text($('estimateBadge'),state.combined?'Experimental estimate':'NOAA baseline only');
+    $('estimateBadge').classList.toggle('warn',!state.combined);
+    text($('currentMethod'),state.combined?`${state.gaugeResults.length} recent NOAA observation${state.gaugeResults.length!==1?'s':''} · adjustment fades with forecast horizon`:'No suitable fresh live gauge readings.');
+    text($('residualNow'),state.combined?`Live correction: ${state.combined.correction>=0?'+':''}${state.combined.correction.toFixed(2)} ft (${Math.round(state.combined.strength*100)}% geographical transfer strength)`:'Illustrative curve between published tide extrema');
+    text($('datumNotice'),`Heights use ${state.base.name} (${state.base.id}) local MLLW reference datum, not a measured or surveyed datum at your pin. This estimate cannot establish local beach depth or safety.`);
+    const h=state.visible.reduce((a,b)=>b.v>a.v?b:a),l=state.visible.reduce((a,b)=>b.v<a.v?b:a);
+    text($('highest'),fmtFt(h.v));text($('lowest'),fmtFt(l.v));text($('highestTime'),`${fmtDay(h.t)} · ${fmtTime(h.t)}`);text($('lowestTime'),`${fmtDay(l.t)} · ${fmtTime(l.t)}`);text($('turns'),String(state.visible.length));
+    text($('chartRange'),`${state.start} – ${state.end}`);
+    renderChart();renderTable();renderSources();
+  }
+  function renderTable(){
+    const filtered=state.visible.filter(x=>state.tableFilter==='both'||(state.tableFilter==='high'?x.type==='H':x.type==='L'));
+    $('tideRows').innerHTML=filtered.length?filtered.map(x=>`<tr><td>${esc(fmtDay(x.t))}</td><td>${esc(fmtTime(x.t))}</td><td class="${x.type==='H'?'tide-high':'tide-low'}"><strong>${x.type==='H'?'High':'Low'}</strong></td><td><strong>${fmtFt(x.v)}</strong></td><td>${state.combined?`<strong>${fmtFt(adjusted(x.t))}</strong><br><small>experimental</small>`:'—'}</td></tr>`).join(''):'<tr><td colspan="5">No matching tide turns in this range.</td></tr>';
+  }
+  function renderSources(){
+    const b=state.base;if(!b)return;
+    $('baseStation').innerHTML=`<strong>NOAA baseline:</strong> ${esc(b.name)} (station ${esc(b.id)}), ${b.distanceKm.toFixed(1)} km straight-line distance. ${b.type==='S'?'This is a NOAA subordinate tide-prediction station.':'This is a NOAA reference tide-prediction station.'} The site selects a representative station; it does not claim to model waterway connectivity.`;
+    $('gaugeList').innerHTML=state.combined?state.combined.gauges.sort((a,b)=>b.share-a.share).map(g=>`<div class="gauge"><div><strong>${esc(g.name)}</strong><br><span>${g.distanceKm.toFixed(1)} km · ${Math.round(g.ageMinutes)} min old · ${Math.round(g.share*100)}% of blended residual</span><br><span>Observed ${fmtFt(g.observed)} · predicted ${fmtFt(g.astronomical)}</span></div><div class="delta">${g.residual>=0?'+':''}${fmtFt(g.residual)}</div></div>`).join(''):'<div class="empty">No sufficiently fresh, geographically compatible gauge observations. Estimated values equal the NOAA baseline; no live correction was applied.</div>';
+    const page=`https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id=${encodeURIComponent(b.id)}`;
+    const raw=new URL(NOAA);Object.entries(mainParams(b,M.plusDaysISO(state.start,-1),M.plusDaysISO(state.end,1))).forEach(([k,v])=>raw.searchParams.set(k,v));raw.searchParams.set('format','json');
+    $('sourceLinks').innerHTML=`<a href="${esc(page)}" target="_blank" rel="noopener noreferrer">Official NOAA tide page ↗</a><a href="${esc(raw)}" target="_blank" rel="noopener noreferrer">Raw NOAA prediction JSON ↗</a><a href="https://tidesandcurrents.noaa.gov/ofs/tbofs/tbofs.html" target="_blank" rel="noopener noreferrer">Tampa Bay operational model ↗</a>`;
+  }
+  function renderChart(){
+    const start=M.easternMidnightUTC(state.start),end=M.easternMidnightUTC(M.plusDaysISO(state.end,1));
+    const step=(end-start)>8*86400000?30*60000:12*60000;
+    const data=[];
+    for(let t=start;t<=end;t+=step){const p=baseValue(t),a=adjusted(t);if(p!==null&&a!==null)data.push({t,p,a});}
+    if(!data.length){$('chartWrap').innerHTML='<div class="empty">Not enough NOAA points for the chosen range.</div>';return;}
+    const box=$('chartWrap');const width=Math.min(925,Math.max(320,Math.floor(box.clientWidth||390)-17));
+    const height=width<500?310:375;const m={l:49,r:13,t:25,b:53};const iw=width-m.l-m.r,ih=height-m.t-m.b;
+    const values=data.flatMap(d=>[d.a,d.p]);const low=Math.floor(Math.min(...values)-.5),high=Math.ceil(Math.max(...values)+.5);
+    const yMin=low,yMax=Math.max(low+2,high);
+    const x=t=>m.l+(t-start)/(end-start)*iw,y=v=>m.t+(1-(v-yMin)/(yMax-yMin))*ih;
+    const path=key=>data.map((d,i)=>`${i?'L':'M'}${x(d.t).toFixed(1)},${y(d[key]).toFixed(1)}`).join(' ');
+    const baseline=path('p'),estimate=path('a');
+    let grid='';for(let v=yMin;v<=yMax;v++){const yy=y(v);grid+=`<line class="chart-grid" x1="${m.l}" x2="${width-m.r}" y1="${yy}" y2="${yy}"/><text class="chart-axis" x="${m.l-9}" y="${yy+4}" text-anchor="end">${v} ft</text>`;}
+    const span=Math.round((Date.parse(state.end+'T00:00Z')-Date.parse(state.start+'T00:00Z'))/86400000)+1;
+    if(span===1){for(let i=0;i<=4;i++){const t=start+(end-start)*i/4;const xx=x(t);grid+=`<line class="chart-grid" x1="${xx}" x2="${xx}" y1="${m.t}" y2="${height-m.b}"/><text class="chart-axis" x="${xx}" y="${height-22}" text-anchor="middle">${esc(fmtTime(t))}</text>`;}}
+    else{const interval=Math.max(1,Math.ceil(span/7));for(let d=0;d<span;d+=interval){const t=M.easternMidnightUTC(M.plusDaysISO(state.start,d)),xx=x(t);grid+=`<line class="chart-grid" x1="${xx}" x2="${xx}" y1="${m.t}" y2="${height-m.b}"/><text class="chart-axis" x="${xx}" y="${height-22}" text-anchor="start">${esc(fmtShort(t+7*3600000))}</text>`;}}
+    let now='';if(state.now>=start&&state.now<=end){const p=adjusted(state.now);if(p!==null){const xx=x(state.now),yy=y(p);now=`<line class="chart-now" x1="${xx}" y1="${m.t}" x2="${xx}" y2="${height-m.b}"/><circle class="chart-dot" cx="${xx}" cy="${yy}" r="5"/><text class="chart-axis" text-anchor="${xx>width-95?'end':'start'}" x="${xx>width-95?xx-5:xx+6}" y="${m.t+13}">Now · ${fmtFt(p)}</text>`;}}
+    const area=`${estimate} L${x(data[data.length-1].t).toFixed(1)},${height-m.b} L${x(data[0].t).toFixed(1)},${height-m.b} Z`;
+    box.innerHTML=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="NOAA tide curve in feet; solid line is live-adjusted estimate if observations available, dashed line is astronomical baseline"><path class="chart-area" d="${area}"/>${grid}<path class="chart-baseline" d="${baseline}"/><path class="chart-adjusted" d="${estimate}"/>${now}</svg>`;
+  }
+  function bind(){
+    $('searchForm').addEventListener('submit',placeSearch);
+    $('coordinateForm').addEventListener('submit',e=>{e.preventDefault();setTarget({lat:Number($('latitude').value),lng:Number($('longitude').value),label:'Entered coordinates'});});
+    $('locateButton').addEventListener('click',()=>{if(!navigator.geolocation){error('Geolocation is not supported.');return;}navigator.geolocation.getCurrentPosition(p=>setTarget({lat:p.coords.latitude,lng:p.coords.longitude,label:'My location'}),e=>error('Location unavailable: '+e.message),{enableHighAccuracy:true,timeout:12000});});
+    $('toggleMap').addEventListener('click',()=>{const open=$('toggleMap').getAttribute('aria-expanded')!=='true';$('toggleMap').setAttribute('aria-expanded',String(open));$('mapPanel').hidden=!open;if(open&&state.map)setTimeout(()=>state.map.invalidateSize(),10);});
+    document.querySelectorAll('[data-location]').forEach(b=>b.addEventListener('click',()=>setTarget(PRESETS[b.dataset.location])));
+    document.querySelectorAll('[data-days]').forEach(b=>b.addEventListener('click',()=>{setDates(+b.dataset.days);load();}));
+    document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{state.tableFilter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));renderTable();}));
+    $('showButton').addEventListener('click',()=>{try{readDates();load()}catch(e){error(e.message)}});
+    $('refreshButton').addEventListener('click',()=>{try{readDates();load(true)}catch(e){error(e.message)}});
+    let resize;window.addEventListener('resize',()=>{clearTimeout(resize);resize=setTimeout(()=>{if(state.visible.length)renderChart();if(state.map)state.map.invalidateSize()},220)});
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-state.now>6*60000)load();});
+  }
+  async function init(){
+    setDates(3);bind();
+    const params=new URLSearchParams(location.search);
+    const urlPoint={lat:Number(params.get('lat')),lng:Number(params.get('lng')),label:'Shared Florida location'};
+    const saved=lsGet('ftc:selection');
+    const point=params.has('lat')&&params.has('lng')&&validPoint(urlPoint)?urlPoint:validPoint(saved||{})?saved:PRESETS.cypress;
+    state.target={...point};text($('selectedPlace'),point.label);text($('coordinates'),`${point.lat.toFixed(5)}, ${point.lng.toFixed(5)}`);$('latitude').value=point.lat.toFixed(5);$('longitude').value=point.lng.toFixed(5);
+    initMap();
+    await prepareCatalog();
+    load();
+  }
+  init().catch(e=>{error('Startup failed: '+e.message);status('Could not start app.');});
+})();
+
+</script>
+</body>
+</html>
