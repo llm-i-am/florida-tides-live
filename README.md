@@ -66,3 +66,18 @@ This website is an independent project and is not an official NOAA publication.
 - **V2:** iPhone-first redesign, safer mobile map selection, improved source labeling, more conservative residual handling, and responsive chart enhancements.
 
 GitHub Pages hosts only the static files; no secrets or personal information should be added to this public repository.
+
+## Browser icons and rich link previews
+
+The `assets/` directory contains a consistent blue-glass ocean-wave identity, generated automatically from the tracked `brand-source/` vectors:
+
+- **iPhone/iPad Safari:** `assets/apple-touch-icon.png` (180×180), plus 167×167 and 152×152 size variants, for Home Screen and bookmark surfaces.
+- **Safari/macOS pinned tabs:** `brand-source/safari-pinned-tab.svg`, using a monochrome mask with a declared tab color.
+- **Chrome, Safari browser tabs, and bookmarks:** SVG icon, 16×16 and 32×32 PNG icons, plus a multi-size `favicon.ico`.
+- **Installable browser app:** `site.webmanifest`, with 192×192, 512×512, 1024×1024, and safe-padded 512×512 maskable icons.
+- **iMessage, Messages on Mac, and social shares:** `assets/social-preview.png` (1200×630), referenced in Open Graph and Twitter card metadata as an absolute HTTPS URL. A JPEG alternative is included for compatibility.
+
+The image build is reproducible using `python tools/build-assets.py` (requires Pillow and CairoSVG) and is also run automatically by the GitHub Actions image workflow. No runtime JavaScript generates or injects the metadata: crawlers can read it directly from the HTML head.
+
+**Preview caveats:** Safari, Chrome, iOS, and iMessage choose icons based on context and may cache old icons or link previews. Sharing a URL does not guarantee a specific preview card layout. Assets must be served successfully by GitHub Pages before external previews can appear. If you change the Pages URL or set a custom domain, update the absolute `og:url`, `og:image`, and `twitter:image` URLs in `index.html`.
+
