@@ -1,0 +1,29 @@
+name: Build bookmark and share imagery
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'brand-source/**'
+      - 'tools/build-assets.py'
+      - '.github/workflows/build-brand-assets.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install image rendering dependencies
+        run: python -m pip install --disable-pip-version-check Pillow cairosvg
+      - name: Render app icons, favicons, and link preview
+        run: python tools/build-assets.py
+      - name: Commit optimized generated assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/
+          if ! git diff --cached --quiet; then
+            git commit -m "Build cross-browser icons and social images"
+            git push origin HEAD:main
+          fi
