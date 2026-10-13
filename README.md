@@ -12,6 +12,10 @@ A mobile-first Florida coastal tide explorer designed primarily for iPhone Safar
 - The first page load requires network access to NOAA services; the map and search also depend on third-party services. There is no account, backend, API key, build tool, or installation step.
 - The prior generated iteration is preserved at [`archive/v1-index.html`](./archive/v1-index.html).
 
+## Daily date-range behavior
+
+The default range is **Today (1 Day)**. Choosing **3 Days**, **7 Days**, or custom dates keeps that selection across refreshes and reopenings **through the rest of the same Florida-local day**. At the next midnight in the site's current Eastern Time implementation, the range resets to **Today**, including if the tab remains open or is restored from the browser's back/forward cache. Pressing the data refresh button preserves the current range. This preference is stored locally in the browser under `ftc:range:v2` and is not synced across devices.
+
 ## V2 highlights
 
 - **iPhone-first UI:** responsive translucent-glass styling, light/dark color schemes, readable touch-sized controls, safe-area padding, reduced-motion support, mobile-friendly date inputs, and a clear tide reading immediately on screen.
